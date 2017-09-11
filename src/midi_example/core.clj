@@ -9,21 +9,21 @@
 (def timestamps (atom '()))
 
 (defn on-midi-event
+  "Saves the 4 most recent timestamps in the timestamps atom"
   [{:keys [channel command note velocity status timestamp]}]
   (when (= command :note-on)
-    (swap! timestamps conj timestamp)))
+    (swap! timestamps #(conj (take 3 %1) %2) timestamp)))
 
 (defn current-bpm
   "Takes a list of timestamps and returns the current bpm based on the last 4"
   [timestamps]
-  (let [most-recent (take 4 timestamps)]
-    (when (> (count most-recent) 1)
-      ;; get time between 4 most recent beats
-      ;; build the average and convert to bpm
-      (/ (* 60 1000 1000)
-         (/ (->> (map - most-recent (rest most-recent))
-                 (reduce +))
-            (count (rest most-recent)))))))
+  (when (> (count timestamps) 1)
+    ;; get time between 4 most recent beats
+    ;; build the average and convert to bpm
+    (/ (* 60 1000 1000)
+       (/ (->> (map - timestamps (rest timestamps))
+               (reduce +))
+          (count (rest timestamps))))))
 
 ;; sketch drawing and setup functions
 
