@@ -22,7 +22,7 @@
   (q/fill 40)
   (let [x (* (q/width) 0.5)
         y (* (q/height) 0.5)]
-    (if-let [bpm (:bpm state)]
+    (if-let [bpm (get-in state [:bpm :current-bpm])]
       (q/text (str "Current BPM: " (int bpm)) x y)
       (q/text "Waiting for MIDI signal" x y))))
 
@@ -36,4 +36,4 @@
   :update update-state
   :draw draw-state
   :features [:keep-on-top]
-  :middleware [m/fun-mode bpm-middleware])
+  :middleware [m/pause-on-error m/fun-mode bpm-middleware])
